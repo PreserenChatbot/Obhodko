@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Machine</title>
+</head>
+<body>
+    <h1>Scan Machine</h1>
+    <div id="scanner-container"></div>
+    <button onclick="startScanner()">Start Scanner</button>
+
+    <script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
+    <script>
+    function startScanner() {
+      Quagga.init({
+        inputStream: {
+          type: "LiveStream",
+          constraints: { facingMode: "environment" },
+          target: document.querySelector("#scanner-container")
+        },
+        decoder: {
+          readers: ["code_128_reader"]
+        }
+      }, function(err) {
+        if (err) return console.error(err);
+        Quagga.start();
+      });
+
+      Quagga.onDetected(data => {
+        const code = data.codeResult.code;
+        window.location.href = `/diagnose.html?code=${code}`;
+      });
+    }
+    </script>
+</body>
+</html>
