@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnose Machine</title>
+</head>
+<body>
+    <h2>Machine Code: <span id="machineCode"></span></h2>
+
+    <form id="diagnoseForm">
+        <label>Is the machine OK?</label><br>
+        <input type="radio" name="isOk" value="true" checked> Yes<br>
+        <input type="radio" name="isOk" value="false"> No<br><br>
+
+        <div id="errorSection" style="display: none;">
+            <label>Select error:</label><br>
+            <select name="error">
+                <option value="Overheating">Overheating</option>
+                <option value="No Power">No Power</option>
+                <option value="Noise Issues">Noise Issues</option>
+                <option value="Leak Detected">Leak Detected</option>
+            </select>
+        </div><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    document.getElementById('machineCode').innerText = code;
+
+    const form = document.getElementById('diagnoseForm');
+    const errorSection = document.getElementById('errorSection');
+
+    form.isOk.forEach(radio => {
+      radio.addEventListener('change', () => {
+        errorSection.style.display = form.isOk.value === 'false' ? 'block' : 'none';
+      });
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const isOk = form.isOk.value === 'true';
+      const error = isOk ? "" : form.error.value;
+
+      const response = await fetch('/api/diagnostics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ machineCode: code, isOk, error })
+      });
+
+      if (response.ok) {
+        alert("Submitted successfully!");
+        window.location.href = '/';
+      } else {
+        alert("Error submitting. Try again.");
+      }
+    });
+    </script>
+</body>
+</html>
